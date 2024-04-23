@@ -1,11 +1,13 @@
 import './index.css';
 import { initialCards, createCard, likeCard, deleteCard } from "./components/cards";
 import { closeModal, openModal } from './components/modal';
+import сousteauImage from '../images/avatar.jpg';
 
 // @todo: Темплейт карточки
 const cardTemplate = document.querySelector('#card-template').content;
 
 // @todo: DOM узлы
+const profileImage= document.querySelector('.profile__image');
 const placesList = document.querySelector('.places__list');
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
@@ -36,6 +38,9 @@ profileEditButton.addEventListener('click', () => {
     professionProfile.placeholder = profileDescription.textContent;
     openModal(editProfile);
 });
+
+//Изменение атрибута style для смены аватара
+profileImage.setAttribute('style', `background-image: URL(${сousteauImage})`);
 
 // Обработчик события кнопки добавления нового места 
 addNewPlaceButton.addEventListener('mouseover', () => (newPlace.classList.add('popup_is-animated')));
@@ -100,10 +105,3 @@ formEditProfile.addEventListener('submit', handleFormSubmit);
 
 // Обработчик события на добавление карточки
 formNewPlace.addEventListener('submit', addCard);
-
-
-// const сousteauImage = new URL('../images/avatar.jpg', import.meta.url);
-
-
-// const profileImage= document.querySelector('.profile__image');
-// profileImage.style.backgroundColor = сousteauImage;
