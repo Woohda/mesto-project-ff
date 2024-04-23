@@ -1,67 +1,66 @@
 import './index.css';
-import { initialCards, createCard, likeCard, deleteCard } from "./components/cards";
+import { initialCards } from './components/initialCards';
+import { createCard, likeCard, deleteCard } from "./components/cards";
 import { closeModal, openModal } from './components/modal';
 import сousteauImage from '../images/avatar.jpg';
 
 // @todo: Темплейт карточки
-const cardTemplate = document.querySelector('#card-template').content;
+const cardTemplate = document.querySelector('#card-template');
 
 // @todo: DOM узлы
 const profileImage= document.querySelector('.profile__image');
 const placesList = document.querySelector('.places__list');
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
-const profileEditButton = document.querySelector('.profile__edit-button');
-const editProfile = document.querySelector('.popup_type_edit'); 
+const buttonOpenPopupProfile = document.querySelector('.profile__edit-button');
+const popupFormProfile = document.querySelector('.popup_type_edit'); 
 const formEditProfile = document.forms.editProfile;
 const nameProfile = formEditProfile.elements.name;
 const professionProfile = formEditProfile.elements.description;
-const addNewPlaceButton = document.querySelector('.profile__add-button');
-const newPlace = document.querySelector('.popup_type_new-card');
+const buttonOpenPopupCard = document.querySelector('.profile__add-button');
+const popupFormCard = document.querySelector('.popup_type_new-card');
 const formNewPlace = document.forms.newPlace;
 const placeName = formNewPlace.elements.placeName;
 const placeLink = formNewPlace.elements.link;
-const contentImage = document.querySelector('.popup_type_image');
+const popupViewImage = document.querySelector('.popup_type_image');
 const popupImage = document.querySelector('.popup__image');
-const cardImageList = document.querySelectorAll('.card__image');
-const closeButtonList = document.querySelectorAll('.popup__close');
+const captionImage = document.querySelector('.popup__caption');
+const buttonClosePopupList = document.querySelectorAll('.popup__close');
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach(element => {
     placesList.append(createCard(element, cardTemplate, deleteCard, likeCard, viewImage));
 });
 
-// Обработчик события кнопки редактировать профиль
-profileEditButton.addEventListener('mouseover', () => (editProfile.classList.add('popup_is-animated')));
-profileEditButton.addEventListener('click', () => {
-    nameProfile.placeholder = profileTitle.textContent;
-    professionProfile.placeholder = profileDescription.textContent;
-    openModal(editProfile);
-});
-
 //Изменение атрибута style для смены аватара
 profileImage.setAttribute('style', `background-image: URL(${сousteauImage})`);
 
-// Обработчик события кнопки добавления нового места 
-addNewPlaceButton.addEventListener('mouseover', () => (newPlace.classList.add('popup_is-animated')));
-addNewPlaceButton.addEventListener('click', () => (openModal(newPlace)));
+// Добавление класса анимации на модальные окна
+[popupFormProfile, popupFormCard, popupViewImage].forEach((element) => {
+    element.classList.add('popup_is-animated');
+});
 
-// Обработчик события открытия изображения 
-cardImageList.forEach((element) => {
-    element.addEventListener('mouseover', () => (contentImage.classList.add('popup_is-animated')));
-}); 
+// Обработчик события кнопки редактировать профиль
+buttonOpenPopupProfile.addEventListener('click', () => {
+    nameProfile.value = profileTitle.textContent;
+    professionProfile.value = profileDescription.textContent;
+    openModal(popupFormProfile);
+});
+
+// Обработчик события кнопки добавления нового места 
+buttonOpenPopupCard.addEventListener('click', () => (openModal(popupFormCard)));
+
 
 // Функция просмотра изображения карточки 
 function viewImage (evt) {
     popupImage.alt = evt.target.alt;
     popupImage.src = evt.target.currentSrc;
-    const captionImage = document.querySelector('.popup__caption');
     captionImage.textContent = evt.target.alt;
-    openModal(contentImage);
+    openModal(popupViewImage);
 };
 
 // Обработчик события закрытия модального окна по оверлею
-[editProfile, newPlace, contentImage].forEach((element) => {
+[popupFormProfile, popupFormCard, popupViewImage].forEach((element) => {
     element.addEventListener('click', (evt) => {
         if (evt.currentTarget === evt.target) {
             closeModal(evt.target);
@@ -70,7 +69,7 @@ function viewImage (evt) {
 });
 
 // Обработчик события закрытия модального окна по крестику
-closeButtonList.forEach((element) => {
+buttonClosePopupList.forEach((element) => {
     element.addEventListener('click', () => {
         const openModalWindow = document.querySelector('.popup_is-opened');
         closeModal(openModalWindow);
@@ -79,12 +78,11 @@ closeButtonList.forEach((element) => {
 
 //Работа с формами  
 // Функция редактирования профиля
-function handleFormSubmit(evt) {
+function editUserProfile(evt) {
     evt.preventDefault(); 
     profileTitle.textContent = nameProfile.value;
     profileDescription.textContent = professionProfile.value;
-    const openModalWindow = document.querySelector('.popup_is-opened');
-    closeModal(openModalWindow);
+    closeModal(popupFormProfile);
 }
 
 // Функция добавления новой карточки
@@ -96,12 +94,12 @@ function addCard (evt) {
     };
     placesList.prepend(createCard(newCard, cardTemplate, deleteCard, likeCard, viewImage));
     formNewPlace.reset(); 
-    const openModalWindow = document.querySelector('.popup_is-opened');
-    closeModal(openModalWindow);
+    closeModal(popupFormCard
+);
 };
 
 // Обработчик события на изменение профиля
-formEditProfile.addEventListener('submit', handleFormSubmit);
+formEditProfile.addEventListener('submit', editUserProfile);
 
 // Обработчик события на добавление карточки
 formNewPlace.addEventListener('submit', addCard);
