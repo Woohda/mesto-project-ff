@@ -3,6 +3,7 @@ import { initialCards } from './components/initialCards';
 import { createCard, likeCard, deleteCard } from "./components/cards";
 import { closeModal, openModal } from './components/modal';
 import сousteauImage from '../images/avatar.jpg';
+import { enableValidation, clearValidation } from './components/validation';
 
 // @todo: Темплейт карточки
 const cardTemplate = document.querySelector('#card-template');
@@ -14,14 +15,8 @@ const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
 const buttonOpenPopupProfile = document.querySelector('.profile__edit-button');
 const popupFormProfile = document.querySelector('.popup_type_edit'); 
-const formEditProfile = document.forms.editProfile;
-const nameProfile = formEditProfile.elements.name;
-const professionProfile = formEditProfile.elements.description;
 const buttonOpenPopupCard = document.querySelector('.profile__add-button');
 const popupFormCard = document.querySelector('.popup_type_new-card');
-const formNewPlace = document.forms.newPlace;
-const placeName = formNewPlace.elements.placeName;
-const placeLink = formNewPlace.elements.link;
 const popupViewImage = document.querySelector('.popup_type_image');
 const popupImage = document.querySelector('.popup__image');
 const captionImage = document.querySelector('.popup__caption');
@@ -44,11 +39,18 @@ profileImage.setAttribute('style', `background-image: URL(${сousteauImage})`);
 buttonOpenPopupProfile.addEventListener('click', () => {
     nameProfile.value = profileTitle.textContent;
     professionProfile.value = profileDescription.textContent;
+    clearValidation(formEditProfile, configValidation);
     openModal(popupFormProfile);
+    enableValidation(configValidation);
 });
 
 // Обработчик события кнопки добавления нового места 
-buttonOpenPopupCard.addEventListener('click', () => (openModal(popupFormCard)));
+buttonOpenPopupCard.addEventListener('click', () => {
+  formNewPlace.reset();
+  clearValidation(formNewPlace, configValidation);
+  openModal(popupFormCard);
+  enableValidation(configValidation);
+});
 
 
 // Функция просмотра изображения карточки 
@@ -63,7 +65,7 @@ function viewImage (evt) {
 [popupFormProfile, popupFormCard, popupViewImage].forEach((element) => {
     element.addEventListener('click', (evt) => {
         if (evt.currentTarget === evt.target) {
-            closeModal(evt.target);
+            closeModal(evt.target); 
         };
     });
 });
@@ -72,11 +74,32 @@ function viewImage (evt) {
 buttonClosePopupList.forEach((element) => {
     element.addEventListener('click', () => {
         const openModalWindow = document.querySelector('.popup_is-opened');
-        closeModal(openModalWindow);
+        closeModal(openModalWindow); 
     });
 });
 
 //Работа с формами  
+const formEditProfile = document.forms.editProfile;
+const nameProfile = formEditProfile.elements.name;
+const professionProfile = formEditProfile.elements.description;
+const formNewPlace = document.forms.newPlace;
+const placeName = formNewPlace.elements.placeName;
+const placeLink = formNewPlace.elements.link;
+
+// Валидация форм
+//Функция 
+
+const configValidation = {
+    formSelector: '.popup__form',
+    inputSelector: '.popup__input',
+    submitButtonSelector: '.popup__button',
+    inactiveButtonClass: 'popup__button_disabled',
+    inputErrorClass: 'popup__input_type_error',
+    errorClass: 'popup__error_visible'
+};
+
+// enableValidation(configValidation);
+
 // Функция редактирования профиля
 function editUserProfile(evt) {
     evt.preventDefault(); 
@@ -94,8 +117,7 @@ function addCard (evt) {
     };
     placesList.prepend(createCard(newCard, cardTemplate, deleteCard, likeCard, viewImage));
     formNewPlace.reset(); 
-    closeModal(popupFormCard
-);
+    closeModal(popupFormCard);
 };
 
 // Обработчик события на изменение профиля
@@ -103,3 +125,4 @@ formEditProfile.addEventListener('submit', editUserProfile);
 
 // Обработчик события на добавление карточки
 formNewPlace.addEventListener('submit', addCard);
+
