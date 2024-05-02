@@ -1,5 +1,4 @@
-//Функция 
-
+//функция добавления классов ошибок валидации
 function showInputError(formElement, inputElement, errorMessage, config) {
   const errorElement = formElement.querySelector(`.${inputElement.name}-error`);
   inputElement.classList.add(config.inputErrorClass);
@@ -7,6 +6,7 @@ function showInputError(formElement, inputElement, errorMessage, config) {
   errorElement.classList.add(config.errorClass);
 };
 
+// функция удаления классов ошибок валидации
 function hideInputError(formElement, inputElement, config) {
   const errorElement = formElement.querySelector(`.${inputElement.name}-error`);
   inputElement.classList.remove(config.inputErrorClass);
@@ -14,9 +14,22 @@ function hideInputError(formElement, inputElement, config) {
   errorElement.textContent = '';
 };
 
+// функция валидации кнопки submit
+function checkbuttonSubmitValidity(formElement, config) {
+  const buttonSubmit = formElement.querySelector(config.submitButtonSelector);
+  if (formElement.checkValidity()) {
+    buttonSubmit.classList.remove(config.inactiveButtonClass);
+    buttonSubmit.disabled = false; 
+  } else {
+    buttonSubmit.disabled = true;
+    buttonSubmit.classList.add(config.inactiveButtonClass);
+  };
+};
+
+// функция валидации полей ввода форм
 function checkInputValidity(formElement, inputElement, config) {
   const regex = /^[a-zа-яё -]+$/i;
-  if (!regex.test(inputElement.value) && inputElement.type === 'text') {
+  if (!regex.test(inputElement.value) && inputElement.type === 'text' && inputElement.value.length != 0) {
     inputElement.setCustomValidity(inputElement.dataset.errorMessage);
   } else {
     inputElement.setCustomValidity('');
@@ -26,21 +39,11 @@ function checkInputValidity(formElement, inputElement, config) {
   } else {
     hideInputError(formElement, inputElement, config);
   };
-  checkbuttonSubmitValidity(formElement, config);
+  checkbuttonSubmitValidity(formElement, config); 
 };
 
-function checkbuttonSubmitValidity(formElement, config) {
-  const buttonSubmit = formElement.querySelector(config.submitButtonSelector);
-  if (formElement.checkValidity()) {
-    buttonSubmit.classList.remove(config.inactiveButtonClass);
-    buttonSubmit.disabled = false; 
-  } else {
-    buttonSubmit.disabled = true;
-    buttonSubmit.classList.add(config.inactiveButtonClass);
-  }
-}
-
-const setEventListeners = (formElement, config) => {
+// функция слушатель валидации полей ввода 
+function setEventListeners (formElement, config) {
   const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
   inputList.forEach((inputElement) => {
     inputElement.addEventListener('input', function () {
@@ -49,13 +52,21 @@ const setEventListeners = (formElement, config) => {
   });
 };
 
+// функция очистки ошибок валидации 
 export function clearValidation(formElement, config) {
   const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
-  inputList.forEach((inputElement) => hideInputError(formElement, inputElement, config));
-  checkbuttonSubmitValidity(formElement, config);
+  inputList.forEach((inputElement) => {
+    if(inputElement.value.length != 0) {
+      checkInputValidity(formElement, inputElement, config);
+    } else {
+      hideInputError(formElement, inputElement, config);
+      checkbuttonSubmitValidity(formElement, config); 
+    }
+  });
 };
 
-export function enableValidation(config){
+// функция слушатель валидации всей формы
+export function enableValidation(config) {
   const formList = Array.from(document.querySelectorAll(config.formSelector));
   formList.forEach((formElement) => {
     formElement.addEventListener('submit', function(evt){

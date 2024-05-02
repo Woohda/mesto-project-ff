@@ -1,9 +1,11 @@
 import './index.css';
-import { initialCards } from './components/initialCards';
+// import { initialCards } from './components/initialCards';
 import { createCard, likeCard, deleteCard } from "./components/cards";
 import { closeModal, openModal } from './components/modal';
 import сousteauImage from '../images/avatar.jpg';
 import { enableValidation, clearValidation } from './components/validation';
+import { getInitialCards } from './components/api';
+
 
 // @todo: Темплейт карточки
 const cardTemplate = document.querySelector('#card-template');
@@ -22,10 +24,15 @@ const popupImage = document.querySelector('.popup__image');
 const captionImage = document.querySelector('.popup__caption');
 const buttonClosePopupList = document.querySelectorAll('.popup__close');
 
-// @todo: Вывести карточки на страницу
-initialCards.forEach(element => {
-    placesList.append(createCard(element, cardTemplate, deleteCard, likeCard, viewImage));
-});
+getInitialCards()
+  .then((content) => {
+    content.forEach((element)=> {
+      placesList.append(createCard(element, cardTemplate, deleteCard, likeCard, viewImage)); // выводим карточки на страницу
+    })
+  })
+  .catch((err) => {
+    console.log(err); // выводим ошибку в консоль
+  }); 
 
 //Изменение атрибута style для смены аватара
 profileImage.setAttribute('style', `background-image: URL(${сousteauImage})`);
@@ -37,21 +44,19 @@ profileImage.setAttribute('style', `background-image: URL(${сousteauImage})`);
 
 // Обработчик события кнопки редактировать профиль
 buttonOpenPopupProfile.addEventListener('click', () => {
-    nameProfile.value = profileTitle.textContent;
-    professionProfile.value = profileDescription.textContent;
-    clearValidation(formEditProfile, configValidation);
-    enableValidation(configValidation);
-    openModal(popupFormProfile);
-    
+  nameProfile.value = profileTitle.textContent;
+  professionProfile.value = profileDescription.textContent;
+  clearValidation(formEditProfile, configValidation);  // очистка ошибок валидации вызовом clearValidation
+  enableValidation(configValidation);  // включение валидации вызовом enableValidation
+  openModal(popupFormProfile);  // открытие модального окна  
 });
 
 // Обработчик события кнопки добавления нового места 
 buttonOpenPopupCard.addEventListener('click', () => {
   formNewPlace.reset();
-  clearValidation(formNewPlace, configValidation);
-  enableValidation(configValidation);
-  openModal(popupFormCard);
-  
+  clearValidation(formNewPlace, configValidation);  // очистка ошибок валидации вызовом clearValidation
+  enableValidation(configValidation);  // включение валидации вызовом enableValidation
+  openModal(popupFormCard);  // открытие модального окна 
 });
 
 
@@ -89,8 +94,7 @@ const placeName = formNewPlace.elements.placeName;
 const placeLink = formNewPlace.elements.link;
 
 // Валидация форм
-//Функция 
-
+// конфиг валидации
 const configValidation = {
     formSelector: '.popup__form',
     inputSelector: '.popup__input',
@@ -99,8 +103,6 @@ const configValidation = {
     inputErrorClass: 'popup__input_type_error',
     errorClass: 'popup__error_visible'
 };
-
-// enableValidation(configValidation);
 
 // Функция редактирования профиля
 function editUserProfile(evt) {
