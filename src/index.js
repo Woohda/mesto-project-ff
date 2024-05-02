@@ -40,16 +40,18 @@ buttonOpenPopupProfile.addEventListener('click', () => {
     nameProfile.value = profileTitle.textContent;
     professionProfile.value = profileDescription.textContent;
     clearValidation(formEditProfile, configValidation);
-    openModal(popupFormProfile);
     enableValidation(configValidation);
+    openModal(popupFormProfile);
+    
 });
 
 // Обработчик события кнопки добавления нового места 
 buttonOpenPopupCard.addEventListener('click', () => {
   formNewPlace.reset();
   clearValidation(formNewPlace, configValidation);
-  openModal(popupFormCard);
   enableValidation(configValidation);
+  openModal(popupFormCard);
+  
 });
 
 
