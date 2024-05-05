@@ -55,6 +55,8 @@ function setEventListeners (formElement, config) {
 // функция очистки ошибок валидации 
 export function clearValidation(formElement, config) {
   const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
+  const buttonSubmit = formElement.querySelector(config.submitButtonSelector);
+  buttonSubmit.textContent =  'Сохранить';
   inputList.forEach((inputElement) => {
     if(inputElement.value.length != 0) {
       checkInputValidity(formElement, inputElement, config);
@@ -71,6 +73,7 @@ export function enableValidation(config) {
   formList.forEach((formElement) => {
     formElement.addEventListener('submit', function(evt){
       evt.preventDefault();
+      evt.submitter.textContent = 'Сохранение...';
     });
     setEventListeners(formElement, config);
   })

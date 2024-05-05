@@ -1,24 +1,55 @@
+import { deletePlaceCard, putLike, removeLike } from "./api";
+
 // @todo: Функция создания карточки 
-function createCard(content, cardTemplate, funcDelete, funcLike, funcView) {
+function createCard(content, cardTemplate, funcDelete, funcLike, funcView, user) {
   const cardElement = cardTemplate.content.querySelector('.places__item').cloneNode(true);
   cardElement.querySelector('.card__title').textContent = content.name;
   const cardImage = cardElement.querySelector('.card__image');
+  const buttonLike = cardElement.querySelector('.card__like-button');
+  const buttonDelete = cardElement.querySelector('.card__delete-button');
   cardImage.src = content.link;
   cardImage.alt = content.name;
-  cardElement.querySelector('.card__like-button').addEventListener('click', funcLike);
-  cardElement.querySelector('.card__delete-button').addEventListener('click', funcDelete);
+  buttonLike.dataset.likes = content.likes.length;
+  cardElement.dataset.cardId = content._id;
+  isLiked(content.likes, user, buttonLike); // проверяем есть ли лайк на карточке 
+  buttonLike.addEventListener('click', funcLike);
+  if (content.owner._id === user) {
+    buttonDelete.addEventListener('click', funcDelete);
+  } else {
+    buttonDelete.setAttribute('hidden', true)
+  }
   cardImage.addEventListener('click', funcView);
   return cardElement;
 };
 
 // Функция отметки нравится 
 function likeCard (evt) {
+  const cardId = evt.target.offsetParent.dataset.cardId;
   evt.target.classList.toggle('card__like-button_is-active');
+  if (evt.target.classList.contains('card__like-button_is-active')) {
+    putLike(cardId)
+      .then ((data) => {
+        evt.target.setAttribute('data-likes', `${data.likes.length}`) 
+      })
+  } else {
+    removeLike(cardId)
+    .then ((data) => {
+      evt.target.setAttribute('data-likes', `${data.likes.length}`) 
+    })
+  };
 };
 
 // @todo: Функция удаления карточки
 function deleteCard(evt) {
-  evt.target.offsetParent.remove();
+  deletePlaceCard(evt.target.offsetParent.dataset.cardId);
+  evt.target.offsetParent.remove(); 
 };
 
-export {createCard, likeCard, deleteCard}
+// функция проверки лайка на карточке
+function isLiked(arr, id, button) {
+  if(arr.some((user) => user._id === id)) {
+    button.classList.add('card__like-button_is-active');
+  }
+}
+
+export {createCard, likeCard, deleteCard}   
