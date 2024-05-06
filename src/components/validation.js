@@ -28,8 +28,7 @@ function checkbuttonSubmitValidity(formElement, config) {
 
 // функция валидации полей ввода форм
 function checkInputValidity(formElement, inputElement, config) {
-  const regex = /^[a-zа-яё -]+$/i;
-  if (!regex.test(inputElement.value) && inputElement.type === 'text' && inputElement.value.length != 0) {
+  if (inputElement.validity.patternMismatch) {
     inputElement.setCustomValidity(inputElement.dataset.errorMessage);
   } else {
     inputElement.setCustomValidity('');
@@ -55,8 +54,6 @@ function setEventListeners (formElement, config) {
 // функция очистки ошибок валидации 
 export function clearValidation(formElement, config) {
   const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
-  const buttonSubmit = formElement.querySelector(config.submitButtonSelector);
-  buttonSubmit.textContent =  'Сохранить';
   inputList.forEach((inputElement) => {
     if(inputElement.value.length != 0) {
       checkInputValidity(formElement, inputElement, config);
@@ -71,10 +68,6 @@ export function clearValidation(formElement, config) {
 export function enableValidation(config) {
   const formList = Array.from(document.querySelectorAll(config.formSelector));
   formList.forEach((formElement) => {
-    formElement.addEventListener('submit', function(evt){
-      evt.preventDefault();
-      evt.submitter.textContent = 'Сохранение...';
-    });
     setEventListeners(formElement, config);
   })
 };

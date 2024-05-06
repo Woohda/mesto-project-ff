@@ -9,8 +9,9 @@ import { getInitialCards, getUserProfile, changeUserProfile, changeUserAvatar, a
 const cardTemplate = document.querySelector('#card-template');
 
 // @todo: DOM узлы
-// переменная листа карточек
+// переменные листа карточек и листа попапов
 const placesList = document.querySelector('.places__list');
+const popupList = document.querySelectorAll('.popup')
 
 // переменные аватара профиля
 const containerProfileAvatar = document.querySelector('.profile__avatar-container');
@@ -90,24 +91,44 @@ containerProfileAvatar.addEventListener('click', () => {
 
 // Функция редактирования профиля
 function editUserProfile() {
-  profileTitle.textContent = nameProfile.value;
-  profileDescription.textContent = professionProfile.value;
   changeUserProfile(nameProfile.value, professionProfile.value) // отправляем обновленные данные на сервер 
-  closeModal(popupFormProfile);
+    .then((data) => {
+      profileTitle.textContent = data.name; // обновляем данные и закрываем попап на странице после ответа сервера 
+      profileDescription.textContent = data.about;
+      closeModal(popupFormProfile);
+    })
+    .catch((err) => {
+      console.log(err); // выводим ошибку в консоль
+    })
+    .finally(() => isSaving(false))
 };
 
 // Функция редактирования аватара профиля
 function changeAvatarProfile() {
-  profileAvatar.src = avatarLink.value;
   changeUserAvatar(avatarLink.value) // отправляем обновленные данные на сервер 
-  closeModal(popupFormAvatar);
+    .then((data) => {
+      profileAvatar.src = data.avatar; // обновляем данные и закрываем попап на странице после ответа сервера
+      closeModal(popupFormAvatar);
+    })
+    .catch((err) => {
+      console.log(err); // выводим ошибку в консоль
+    })
+    .finally(() => isSaving(false))
 };
 
 // Обработчик события на изменение профиля
-formEditProfile.addEventListener('submit', editUserProfile);
+formEditProfile.addEventListener('submit', function(evt) {
+  evt.preventDefault(); 
+  editUserProfile();
+  isSaving(true);
+});
 
 // Обработчик события на изменение аватара профиля
-formChangeAvatar.addEventListener('submit', changeAvatarProfile)
+formChangeAvatar.addEventListener('submit', function(evt) {
+  evt.preventDefault();
+  changeAvatarProfile();
+  isSaving(true);
+})
 
 // работа с данными карточки
 // Обработчик события кнопки добавления нового места 
@@ -126,17 +147,24 @@ function addNewPlace () {
   };
   addNewPlaceCard(newPlace)
   .then((data) => { 
-    placesList.prepend(createCard(data, cardTemplate, deleteCard, likeCard, viewImage, data.owner._id));// выводим карточки на страницу
+    placesList.prepend(
+      createCard(data, cardTemplate, deleteCard, likeCard, viewImage, data.owner._id)
+    ); 
+    closeModal(popupFormCard); // выводим карточки на страницу и закрываем попап после ответа сервера
     })
     .catch((err) => {
       console.log(err); // выводим ошибку в консоль
-    }); 
+    })
+    .finally(() => isSaving(false))
   formNewPlace.reset(); 
-  closeModal(popupFormCard);
 };
 
 // Обработчик события на добавление карточки
-formNewPlace.addEventListener('submit', addNewPlace);
+formNewPlace.addEventListener('submit', function(evt) {
+  evt.preventDefault();
+  addNewPlace();
+  isSaving(true);
+});
 
 // Функция просмотра изображения карточки 
 function viewImage (evt) {
@@ -147,12 +175,12 @@ function viewImage (evt) {
 };
 
 // Добавление класса анимации на модальные окна
-[popupFormProfile, popupFormCard, popupViewImage, popupFormAvatar].forEach((element) => {
+popupList.forEach((element) => {
     element.classList.add('popup_is-animated');
 });
 
 // Обработчик события закрытия модального окна по оверлею
-[popupFormProfile, popupFormCard, popupViewImage, popupFormAvatar].forEach((element) => {
+popupList.forEach((element) => {
     element.addEventListener('click', (evt) => {
         if (evt.currentTarget === evt.target) {
             closeModal(evt.target); 
@@ -162,9 +190,18 @@ function viewImage (evt) {
 
 // Обработчик события закрытия модального окна по крестику
 buttonClosePopupList.forEach((element) => {
-    element.addEventListener('click', () => {
-        const openModalWindow = document.querySelector('.popup_is-opened');
-        closeModal(openModalWindow); 
+    element.addEventListener('click', (evt) => {
+      closeModal(evt.target.parentElement.parentElement); 
     });
 });
+
+// функция смены текста кнопки submit при сохранении данных 
+function isSaving(value) {
+  if(value) { 
+    buttonPopupSubmit.textContent = 'Сохранение...'
+  } else {
+    buttonPopupSubmit.textContent = 'Сохранить'
+  }
+}
+
 

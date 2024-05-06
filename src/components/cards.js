@@ -11,7 +11,7 @@ function createCard(content, cardTemplate, funcDelete, funcLike, funcView, user)
   cardImage.alt = content.name;
   buttonLike.dataset.likes = content.likes.length;
   cardElement.dataset.cardId = content._id;
-  isLiked(content.likes, user, buttonLike); // проверяем есть ли лайк на карточке 
+  isLiked(content.likes, user, buttonLike); // проверяем есть ли мой лайк на карточке 
   buttonLike.addEventListener('click', funcLike);
   if (content.owner._id === user) {
     buttonDelete.addEventListener('click', funcDelete);
@@ -25,15 +25,16 @@ function createCard(content, cardTemplate, funcDelete, funcLike, funcView, user)
 // Функция отметки нравится 
 function likeCard (evt) {
   const cardId = evt.target.offsetParent.dataset.cardId;
-  evt.target.classList.toggle('card__like-button_is-active');
-  if (evt.target.classList.contains('card__like-button_is-active')) {
+  if (!evt.target.classList.contains('card__like-button_is-active')) {
     putLike(cardId)
       .then ((data) => {
+        evt.target.classList.add('card__like-button_is-active');
         evt.target.setAttribute('data-likes', `${data.likes.length}`) 
       })
   } else {
     removeLike(cardId)
     .then ((data) => {
+      evt.target.classList.remove('card__like-button_is-active');
       evt.target.setAttribute('data-likes', `${data.likes.length}`) 
     })
   };
@@ -41,8 +42,8 @@ function likeCard (evt) {
 
 // @todo: Функция удаления карточки
 function deleteCard(evt) {
-  deletePlaceCard(evt.target.offsetParent.dataset.cardId);
-  evt.target.offsetParent.remove(); 
+  deletePlaceCard(evt.target.offsetParent.dataset.cardId)
+  .then(evt.target.offsetParent.remove()); 
 };
 
 // функция проверки лайка на карточке

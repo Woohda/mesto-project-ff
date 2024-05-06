@@ -6,15 +6,20 @@ const configApi = {
     }
 };
 
+// // функция проверки ответа от сервера 
+function getResponseData(res) {
+    if (!res.ok) {
+        return Promise.reject(`Ошибка: ${res.status}`);
+    }
+    return Promise.resolve(res.json());
+}
+
 // функция получения карточек с сервера 
 export const  getInitialCards = async () => {
     const data = await fetch(`${configApi.baseUrl}/cards`, {
         headers: configApi.headers
     });
-    if (data.ok) {
-        return Promise.resolve(data.json());
-    }
-    return Promise.reject(`Ошибка: ${data.status}`);
+    return getResponseData(data);
 };
 
 // функция добавления карточки на сервер
@@ -27,10 +32,7 @@ export const addNewPlaceCard = async (newPlace) => {
             link: newPlace.link
           })
     });
-    if (data.ok) {
-        return await data.json();
-    }
-    return Promise.reject(`Ошибка: ${data.status}`);
+    return getResponseData(data);
 };
  
 // функци удаления карточки с сервера
@@ -39,10 +41,7 @@ export const deletePlaceCard = async (cardId) => {
         method: 'DELETE',
         headers: configApi.headers
     })
-    if (data.ok) {
-        return data.json();
-    }
-    return Promise.reject(`Ошибка: ${data.status}`);
+    return getResponseData(data);
 };
 
 
@@ -51,10 +50,7 @@ export const getUserProfile = async () => {
     const data = await fetch(`${configApi.baseUrl}/users/me`, {
         headers: configApi.headers
     });
-    if (data.ok) {
-        return  Promise.resolve(data.json());
-    }
-    return Promise.reject(`Ошибка: ${data.status}`);
+    return getResponseData(data);
 };
 
 // функция обновления данных профиля на сервере 
@@ -67,10 +63,7 @@ export const changeUserProfile = async (name, about) => {
             about
           })
     });
-    if (data.ok) {
-        return data.json();
-    }
-    return Promise.reject(`Ошибка: ${data.status}`);
+    return getResponseData(data);
 };
 
 // функция обновления аватара профиля на сервере 
@@ -82,10 +75,7 @@ export const changeUserAvatar = async (avatar) => {
             avatar
           })
     });
-    if (data.ok) {
-        return data.json();
-    }
-    return Promise.reject(`Ошибка: ${data.status}`);
+    return getResponseData(data);
 };
 
 // функции обновления отмети мне нравится
@@ -94,19 +84,13 @@ export const putLike = async (cardId) => {
         method: 'PUT',
         headers: configApi.headers
     });
-    if (data.ok) {
-        return await data.json();
-    }
-    return Promise.reject(`Ошибка: ${data.status}`);   
+    return getResponseData(data);
 };
 export const removeLike = async (cardId) => {
     const data = await fetch(`${configApi.baseUrl}/cards/likes/${cardId}`, {
         method: 'DELETE',
         headers: configApi.headers
     });
-    if (data.ok) {
-        return await data.json();
-    }
-    return Promise.reject(`Ошибка: ${data.status}`);
+    return getResponseData(data);
 };
 
