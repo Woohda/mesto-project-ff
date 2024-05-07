@@ -54,6 +54,7 @@ const configValidation = {
   inputErrorClass: 'popup__input_type_error',
   errorClass: 'popup__error_visible'
 };
+enableValidation(configValidation);  // включение валидации вызовом enableValidation
 
 // работа с сервером 
 // получение профиля юзера и карточек с сервера
@@ -77,7 +78,6 @@ buttonOpenPopupProfile.addEventListener('click', () => {
   nameProfile.value = profileTitle.textContent;
   professionProfile.value = profileDescription.textContent;
   clearValidation(formEditProfile, configValidation);  // очистка ошибок валидации вызовом clearValidation
-  enableValidation(configValidation);  // включение валидации вызовом enableValidation
   openModal(popupFormProfile);  // открытие модального окна  
 });
 
@@ -85,12 +85,12 @@ buttonOpenPopupProfile.addEventListener('click', () => {
 containerProfileAvatar.addEventListener('click', () => {
   formChangeAvatar.reset();
   clearValidation(formChangeAvatar, configValidation);  // очистка ошибок валидации вызовом clearValidation
-  enableValidation(configValidation);  // включение валидации вызовом enableValidation
   openModal(popupFormAvatar);  // открытие модального окна 
 });
 
 // Функция редактирования профиля
 function editUserProfile() {
+  isSaving(true);
   changeUserProfile(nameProfile.value, professionProfile.value) // отправляем обновленные данные на сервер 
     .then((data) => {
       profileTitle.textContent = data.name; // обновляем данные и закрываем попап на странице после ответа сервера 
@@ -105,6 +105,7 @@ function editUserProfile() {
 
 // Функция редактирования аватара профиля
 function changeAvatarProfile() {
+  isSaving(true);
   changeUserAvatar(avatarLink.value) // отправляем обновленные данные на сервер 
     .then((data) => {
       profileAvatar.src = data.avatar; // обновляем данные и закрываем попап на странице после ответа сервера
@@ -120,14 +121,12 @@ function changeAvatarProfile() {
 formEditProfile.addEventListener('submit', function(evt) {
   evt.preventDefault(); 
   editUserProfile();
-  isSaving(true);
 });
 
 // Обработчик события на изменение аватара профиля
 formChangeAvatar.addEventListener('submit', function(evt) {
   evt.preventDefault();
   changeAvatarProfile();
-  isSaving(true);
 })
 
 // работа с данными карточки
@@ -135,7 +134,6 @@ formChangeAvatar.addEventListener('submit', function(evt) {
 buttonOpenPopupCard.addEventListener('click', () => {
   formNewPlace.reset();
   clearValidation(formNewPlace, configValidation);  // очистка ошибок валидации вызовом clearValidation
-  enableValidation(configValidation);  // включение валидации вызовом enableValidation
   openModal(popupFormCard);  // открытие модального окна 
 });
 
@@ -148,22 +146,21 @@ function addNewPlace () {
   addNewPlaceCard(newPlace)
   .then((data) => { 
     placesList.prepend(
-      createCard(data, cardTemplate, deleteCard, likeCard, viewImage, data.owner._id)
+      createCard(data, cardTemplate, deleteCard, likeCard, viewImage, data.owner._id) // выводим карточки на страницу и закрываем попап после ответа сервера
     ); 
-    closeModal(popupFormCard); // выводим карточки на страницу и закрываем попап после ответа сервера
+    closeModal(popupFormCard);
+    formNewPlace.reset(); // очищаем форму  
     })
     .catch((err) => {
       console.log(err); // выводим ошибку в консоль
     })
     .finally(() => isSaving(false))
-  formNewPlace.reset(); 
 };
 
 // Обработчик события на добавление карточки
 formNewPlace.addEventListener('submit', function(evt) {
   evt.preventDefault();
   addNewPlace();
-  isSaving(true);
 });
 
 // Функция просмотра изображения карточки 
@@ -191,7 +188,7 @@ popupList.forEach((element) => {
 // Обработчик события закрытия модального окна по крестику
 buttonClosePopupList.forEach((element) => {
     element.addEventListener('click', (evt) => {
-      closeModal(evt.target.parentElement.parentElement); 
+      closeModal(evt.target.closest('.popup_is-opened')); 
     });
 });
 
